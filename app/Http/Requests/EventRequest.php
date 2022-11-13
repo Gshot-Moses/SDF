@@ -24,11 +24,11 @@ class EventRequest extends FormRequest
     public function rules()
     {
         return [
-            'title' => 'required',
+            'title' => 'required|unique',
             'start_date' => 'required',
-            'start_time' => 'required',
+            //'start_time' => 'required',
             'end_date' => 'required',
-            'end_time' => 'required',
+            //'end_time' => 'required',
             'details' => 'required',
         ];
     }

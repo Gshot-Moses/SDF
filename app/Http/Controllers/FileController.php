@@ -5,7 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\File;
 use App\Models\Folder;
 use App\Http\Requests\FileRequest;
+use App\Http\Requests\DocumentRequest;
+use App\Http\Requests\MediaRequest;
+use App\Http\Requests\BrandbookRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class FileController extends Controller
 {
@@ -22,8 +27,7 @@ class FileController extends Controller
 
     public function folderContent($folder_id) {
         $folders = Folder::get();
-        $files = File::where('folder_id', $folder_id)
-                    ->where('owner_id', 1)->get();
+        $files = File::where('folder_id', '=', $folder_id)->get();
         if($folder_id == Folder::DOCUMENTS) {
             return view('resources.document', ['files' => $files]);
         }
@@ -42,7 +46,90 @@ class FileController extends Controller
      */
     public function create()
     {
-        return view('resources.create');
+        //return view('resources.create');
+    }
+
+    public function createDocument() {
+        return view('resources.document_create');
+    }
+
+    public function createMedia() {
+        return view('resources.media_create');
+    }
+
+    public function createBrandbook() {
+        return view('resources.brandbook_create');
+    }
+
+    public function storeDocument(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255|min:4',
+            'file' => 'required|mimes:doc,docx,xlsx,pptx,ppt,pdf',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+        $validated = $validator->valid();
+        $file = new File;
+        $file->added_by = auth()->user()->id;
+        $extension = $validated['file']->extension();
+        //$extension = $request->file->getClientOriginalExtension();
+        $file->folder_id = Folder::DOCUMENTS;
+        $filename = $validated['name'].'.'.strtolower($extension);
+        $file->filename = $filename;
+        $file->extension = strtolower($extension);
+        $path = $validated['file']->storeAs('uploads', $filename, 'public');
+        $file->path = $path;
+        $file->save();
+        return response()->json($file);
+        //return redirect()->route('resource.folder', Folder::DOCUMENTS)->with('status', 'Ficher uploader avec succes');
+    }
+
+    public function storeMedia(Request $request) {
+        //$validated = $request->validated();
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255|min:4',
+            'file' => 'required|mimes:mp3,m4a,wav,mp4,mkv,jpg,png,gif',
+        ]);
+        if ($validator->fails()) {
+            return response()->json($validator->errors());
+        }
+        $validated = $validator->valid();
+        $file = new File;
+        $file->added_by = auth()->user()->id;
+        $extension = $validated['file']->extension();
+        //$extension = $request->file->getClientOriginalExtension();
+        $file->folder_id = Folder::MEDIA;
+        $filename = $validated['name'].'.'.strtolower($extension);
+        $file->filename = $filename;
+        $file->extension = strtolower($extension);
+        $path = $validated['file']->storeAs('uploads', $filename, 'public');
+        $file->path = $path;
+        $file->save();
+        return response()->json($file);
+        //return redirect()->route('resource.folder', FOLDER::MEDIA)->with('status', 'Ficher uploader avec succes');
+    }
+
+    public function storeBrandbook(BrandbookRequest $request) {
+        $validated = $request->validated();
+        $file = new File;
+        $file->added_by = auth()->user()->id;
+        $extension = $request->file->extension();
+        //$extension = $request->file->getClientOriginalExtension();
+        $file->folder_id = Folder::BRANDBOOK;
+        $filename = $request->name.'.'.strtolower($extension);
+        $file->filename = $filename;
+        $file->extension = strtolower($extension);
+        $path = $request->safe()->file->storeAs('uploads', $filename, 'public');
+        $file->path = $path;
+        $file->save();
+        return redirect()->route('resource.folder', FOLDER::BRANDBOOK)->with('status', 'Ficher uploader avec succes');
+    }
+
+    public function download($id) {
+        $file = File::where('id', '=', $id)->first();
+        return Storage::download('public/uploads/'.$file->filename);
+        //return response()->json(['url' => '/storage/public/uploads/'.$file->filename]);
     }
 
     /**
@@ -56,7 +143,8 @@ class FileController extends Controller
         $file = new File;
         $file->owner_id = 1;
         $file_req = $request->file;
-        $extension = $file_req->getClientOriginalExtension();
+        $extension = $file_req->extension();
+        //$extension = $file_req->getClientOriginalExtension();
         $folder_type = 0;
         if ($extension == 'jpg' || $extension == 'png' || $extension == 'gif') {
             $folder_type = 2;
@@ -68,6 +156,7 @@ class FileController extends Controller
         $file_req->storeAs('uploads', $filename, 'public');
         $file->folder_id = $folder_type;
         $file->filename = $request->name;
+        $file->extension = $extension;
         $file->save();
         return redirect()->route('resource.index', 1)->with('status', 'Ficher uploader avec succes');
     }
@@ -78,9 +167,19 @@ class FileController extends Controller
      * @param  \App\Models\File  $file
      * @return \Illuminate\Http\Response
      */
-    public function show(File $file)
+    public function show($id)
     {
-        //
+        $file = File::where('id', '=', $id)->first();
+        if ($file->extension == 'pdf') {
+            return view('resources.show_doc', ['filename' => $file->filename]);
+        }
+        else if ($file->extension == 'png' || $file->extension == 'jpg' || $file->extension == 'gif') {
+            return view('resources.show_media', ['filename' => $file->filename]);
+        }
+        else {
+            return view('resources.show_audio', ['filename' => $file->filename]);
+        }
+        //return Storage::url('public/uploads/'.$file->filename);
     }
 
     /**
@@ -112,8 +211,11 @@ class FileController extends Controller
      * @param  \App\Models\File  $file
      * @return \Illuminate\Http\Response
      */
-    public function destroy(File $file)
+    public function destroy($id)
     {
-        //
+        $file = File::where('id', '=', $id)->first();
+        Storage::delete('public/uploads/'.$file->filename);
+        $file->delete();
+        return redirect()->route('resource.index')->with('Fichier supprime avec success');
     }
 }

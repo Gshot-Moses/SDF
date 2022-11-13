@@ -23,6 +23,9 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
+            $table->string('google_id')->nullable();
+            $table->string('google_token')->nullable();
+            $table->string('google_refresh_token')->nullable();
             $table->foreignId('current_team_id')->nullable();
             $table->string('profile_photo_path', 2048)->nullable();
             $table->timestamps();
@@ -33,6 +36,7 @@ return new class extends Migration
             'role_id' => 2,
             'name' => 'Moussa Mohaman',
             'email' => 'gshot@gmail.com',
+            'google_token' => '1234',
             'password' => Hash::make('12345678')
         ]);
 
@@ -41,6 +45,7 @@ return new class extends Migration
             'role_id' => 1,
             'name' => 'Krou',
             'email' => 'serge@gmail.com',
+            'google_token' => '1234',
             'password' => Hash::make('12345678')
         ]);
     }

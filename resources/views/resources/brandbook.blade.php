@@ -12,12 +12,17 @@
             {{ session('status') }}
         </div>
         @endif
+        <a href="{{ route('brandbook.create') }}" class="btn btn-info m-2">Ajouter un ficher</a>
         <div class="card-body">
-            <div class="row">
-
+            <div class="row mx-2">
                 @foreach($files as $file)
                     <div class="col">
-                        <img src="" alt="" height="50" width="50">
+                        @if($file->extension == 'doc' || $file->extension == 'docx')
+                            <img src="{{ asset('assets/images/ms-word-96.png') }}" alt="" height="50" width="50">
+                        @endif
+                        @if($file->extension == 'pdf')
+                            <img src="{{ asset('assets/images/pdf-96.png') }}" alt="" height="50" width="50">
+                        @endif
                         <p>{{ $file->filename }}</p>
                     </div>    
                 @endforeach

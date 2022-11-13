@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Models\Role;
 
 class RoleMiddleware
 {
@@ -16,7 +17,7 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->user()->role->id == 2) {
+        if (auth()->user()->role->id == Role::ADMIN) {
             return $next($request);
         }
         else {

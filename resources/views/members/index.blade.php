@@ -1,50 +1,258 @@
-<html>
-    <head>
-        <title>Home</title>
-        <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-        <link rel="stylesheet" href="{{ asset('assets/css/custom.css') }}">
-</head>
-<body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-			<a class="navbar-brand" href="#">Project name</a>
-			<div class="collapse navbar-collapse" id="navbar">
-				<ul class="nav navbar-nav ml-auto">
-					<li class="nav-item">
-						<a class="nav-link active" href="#">{{ Auth::user()->name }} | Deconnexion <span
-						class="sr-only">(current)</span></a>
-					</li>
-				</ul>
-			</div>
-		</nav>
-		<div id="main-container" class="container-fluid">
-			<div class="row">
-				<div class="col-sm-3 col-md-2 d-none d-sm-block sidebar">
-					<ul class="nav flex-column">
-						<li class="active"><a href="{{ route('home') }}">Actualite</a></li>
-						<li><a href="#">Email</a></li>
-						<li><a href="{{ route('event.index') }}">Agenda</a></li>
-                        <li><a href="{{ route('resource.index') }}">Ressources</a></li>
-						<li><a href="{{ route('member.index') }}">Membres</a></li>
-					</ul>
-				</div>
-				<div id="main-content-container" class="col-sm-9 col-md-10">
-                    <div class="bg-light text-dark py-3 pl-2">
-                        <h3>Membres</h3>
+@extends('layouts.app')
+
+@section('sidebar')
+	@include('layouts.sidebar', ['status' => 'member'])
+@endsection
+
+@section('content')
+
+	<!-- Modal create, update-->
+	<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  		<div class="modal-dialog modal-dialog-centered" role="document">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<h5 class="modal-title" id="exampleModalLongTitle">Creation d'un membre</h5>
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          				<span aria-hidden="true">&times;</span>
+        			</button>
+      		</div>
+      		<div class="modal-body">
+			  <form action="{{ route('member.store') }}" method="POST" id="create">
+                    {{ csrf_field() }}
+                    <div class="form-group">
+                        <label>Nom</label>
+                        <input type="text" name="name" class="form-control" placeholder="Ex: Serge">
+						<small class="text-danger" style="display: none" id="nameError"></small>
                     </div>
-                    @if(session('status'))
-                        <div class="alert alert-success">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-                    @if(Auth::user()->role->id == 2)
-                        <a href="{{ route('member.create') }}" class="btn btn-info">Creer un membre</a>
-                    @endif
-                    @foreach($members as $member)
-                    <div class="card-body bg-light mt-1">
-                        <a href="#">{{ $member->name }}</a>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" class="form-control" placeholder="example@gmail.com">
+						<small class="text-danger" style="display: none" id="emailError"></small>
+					</div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select name="role" class="form-control">
+                            <option value=2>Admin</option>
+                            <option value=1>Membre</option>
+                        </select>
                     </div>
-                    @endforeach
-				</div>
+                    <!-- <div class="form-group">
+                        <label>Mot de passe</label>
+                        <input type="password" name="password" class="form-control" placeholder="Mot de passe">
+                    </div> -->
+                    <input type="submit" value="Enregistrer" class="btn btn-info mt-5">
+                </form>
+      		</div>
+      		<div class="modal-footer">
+        		<!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        		<button type="button" class="btn btn-primary">Save changes</button> -->
+      		</div>
+    	</div>
+  </div>
+</div>
+
+<!-- Modal confirm deletion-->
+<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  		<div class="modal-dialog modal-dialog-centered" role="document">
+    		<div class="modal-content">
+      			<div class="modal-header">
+        			<h5 class="modal-title" id="exampleModalLongTitle">Supprimer un membre</h5>
+        			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          				<span aria-hidden="true">&times;</span>
+        			</button>
+      		</div>
+      		<div class="modal-body">
+			  <p>Souaitez-vous supprimer ce membre ?</p>
+      		</div>
+      		<div class="modal-footer">
+        		<button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+        		<button type="button" class="btn btn-primary" id="delete">Supprimer</button>
+      		</div>
+    	</div>
+  </div>
+</div>
+		
+	<div class="bg-light text-dark py-3 pl-2">
+		<h3>Membres</h3>
+	</div>
+	<!-- @if(session('status'))
+		<div class="alert alert-success" id="success" style="display: none">
+			{{ session('status') }}
 		</div>
-</body>
-</html>
+	@endif -->
+	<div class="alert alert-success" id="success" style="display: none">
+		<p>Creation effectif</p>
+	</div>
+	@if(Auth::user()->role->id == 2)
+		<a href="#" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter"
+		type="button">
+			Creer un membre
+		</a>
+	@endif
+	<table class="table mt-3" id="drawer">
+		<thead class="thead-light">
+			<tr>
+				<th scope="col">id</th>
+				<th scope="col">Nom</th>
+				@if(Auth::user()->role->id == 2)
+				<th scope="col">Actions</th>
+				@endif
+			</tr>
+		</thead>
+		<tbody>
+			@foreach($members as $member)
+			<tr id="row{{ $member->id }}">
+				<td>{{ $member->id }}</td>
+				<td id="name{{ $member->id }}">{{ $member->name }}</td>
+				@if(Auth::user()->role->id == 2)
+				<td>
+					<button class="btn btn-info"
+					data-toggle="modal" data-target="#exampleModalCenter" data-name="{{ $member->name }}"
+					data-email="{{ $member->email }}" data-role="{{ $member->role->id }}"
+					data-url="{{ route('member.update', $member->id) }}" type="button">
+						Modifier
+					</button>
+					<a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modalDelete"
+					data-url="{{ route('member.delete', $member->id) }}">
+						Supprimer
+					</a>
+				</td>
+				@endif
+			</tr>
+			@endforeach
+		</tbody>
+	</table>
+
+	
+@endsection
+
+@section('scripts')
+
+<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
+
+<script>
+	// Delete case
+	$("#modalDelete").on("show.bs.modal", function(event){
+		var button = $(event.relatedTarget);
+		var url = button.data("url");
+
+		var modal = $(this);
+		modal.find(".modal-footer button[id=delete]").on("click", function(){
+			$.get(url, function(data) {
+				$("#row" + data.id).remove();
+
+				$("#success").text("Suppression effectif");
+				$("#success").css("display", "block");
+
+				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
+				modal.hide();
+			});
+		});
+	});
+
+	// Change modal content with respect to button
+	$("#exampleModalCenter").on("show.bs.modal", function(event) {
+		var button = $(event.relatedTarget);
+		var name = button.data("name");
+		var email = button.data("email");
+		var role = button.data("role");
+		var url = button.data("url");
+		//console.log(url);
+
+		$("#nameError").text("");
+		$("#emailError").text("");
+
+		var modal = $(this);
+		modal.find(".modal-title").text("Editer member");
+		modal.find(".modal-body form").attr("action", url);
+		modal.find(".modal-body input[name=name]").attr("value", name);
+		modal.find(".modal-body input[name=email]").attr("value", email);
+		modal.find(".modal-body select").val(role);
+	});
+	$("#create").on("submit", function(e){
+		e.preventDefault();
+		var form = $(this);
+		var url = form.attr("action");
+		var name = $("input[name=name]").val();
+		//var password = $("input[name=password]").val();
+		var email = $("input[name=email]").val();
+		var role = $("role").val();
+
+		$.ajax({
+			type:'POST',
+			url: url,
+			data: new FormData(this),
+			processData: false,
+    		contentType: false,
+			dataType: "JSON",
+			success: function(data) {
+				console.log(data);
+				// Error check from server
+				if (data.hasOwnProperty("nameError") || data.hasOwnProperty("emailError")) {
+					if (data.hasOwnProperty("nameError")) {
+						$("#nameError").text(data.nameError);
+                        $("#nameError").css("display", "block");
+					}
+					if (data.hasOwnProperty("emailError")) {
+						$("#emailError").text(data.emailError);
+                        $("#emailError").css("display", "block");	
+					}
+					return;
+				}
+
+				// Member update handling case
+				if (data.hasOwnProperty("success")) {
+					// Show success feedback
+					$("#success").text("Modification effectif");
+					$("#success").css("display", "block");
+
+					// Rest form elements
+					//$("#create")[0].reset();
+					$("#create input[name=name]").attr("value", "");
+					$("#create input[name=email]").attr("value", "");
+					$("#nameError").text("");
+					$("#emailError").text("");
+
+					// Hide modal
+                	$("#exampleModalCenter").modal("hide");
+
+					// Timeout success feedback
+					window.setTimeout(() => ($("#success").css("display", "none")), 3000);
+				
+					// Update concerned table row
+					$("#name" + data.id).text(data.name);
+					return;
+				}
+
+				//Member creation
+				$("#success").css("display", "block");
+
+				$("#create")[0].reset();
+				$("#nameError").text("");
+				$("#emailError").text("");
+
+                $("#exampleModalCenter").modal("hide");
+				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
+				
+				var append = "";
+				var editR = "http://localhost:8000/members/update/"  + data.id;
+				
+			
+				var deleteR = "http://localhost:8000/members/delete/" + data.id;
+				var btn1 = "<a href='" + editR + "' class='btn btn-info'>Modifier</a>";
+				var btn2 = "<a href='" + deleteR + "' class='btn btn-danger'>Supprimer</a>";
+				var isAdmin = "{{ Auth::user()->role->id == 2 ? true : false }}"
+				if (isAdmin != true) {
+					append = "<tr><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td></tr>";
+				}
+				else {
+					append = "<tr><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td><td>" + btn1 + " " + btn2 + "</td></tr>";
+				}
+
+				$("#drawer tr:last").after(append);
+			}
+		});
+	});
+</script>
+
+@endsection

@@ -18,8 +18,8 @@ class CreateEventsTable extends Migration
             $table->integer('creator_id');
             $table->string('name');
             $table->string('details');
-            $table->datetime('due_date');
-            $table->datetime('end_date');
+            $table->date('due_date');
+            $table->date('end_date');
             $table->timestamps();
         });
     }
