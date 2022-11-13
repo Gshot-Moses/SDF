@@ -50,8 +50,8 @@
               </div>
       		</div>
       		<div class="modal-footer">
-        		<!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        		<button type="button" class="btn btn-primary">Save changes</button> -->
+        		<!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+        		<a href="#" class="btn btn-success">Telecharger</a>
       		</div>
     	</div>
   </div>
@@ -78,7 +78,8 @@
                     <div class="col">
                         <!-- <a href="#" id="viewImg" class="obj{{ $file->id }}" onclick="showImg('{{ $file->id }}', '{{ $file->filename }}', '{{ $file->extension }}')"> -->
                         <a href="#" data-toggle="modal" data-target="#showModal"
-						data-url="{{ asset('storage/uploads/'.$file->filename) }}" data-extension="{{ $file->extension }}">
+						data-url="{{ asset('storage/uploads/'.$file->filename) }}" data-extension="{{ $file->extension }}"
+                        data-download="{{ route('resource.download', $file->id) }}">
                             @if($file->extension == 'jpg' || $file->extension == 'png' || $file->extension == 'gif')
                                 <img src="{{ asset('assets/images/picture.png') }}" alt="" height="50" width="50">
                             @endif
@@ -106,8 +107,10 @@
     $("#showModal").on("show.bs.modal", function(event){
 		var button = $(event.relatedTarget);
 		var url = button.data("url");
+        var download = button.data("download");
 		var extension = button.data("extension");
 		var modal = $(this);
+        modal.find(".modal-footer a").attr("href", download);
 		if (extension == "png" || extension == "jpg" || extension == "gif") {
 			var content = "<img src='" + url + "' alt='' height='250' width='300'>";
 			modal.find(".modal-body div[id=content]").html(content);

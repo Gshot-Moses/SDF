@@ -67,9 +67,9 @@ class MemberController extends Controller
         }
         $validated = $validator->valid();
         $member = new User;
-        $member->name = $validated->name;
-        $member->email = $validated->email;
-        $member->role_id = $validated->role;
+        $member->name = $request->name;
+        $member->email = $request->email;
+        $member->role_id = $request->role;
         $member->password = Hash::make('12345678');
         $member->save();
         return response()->json($member);

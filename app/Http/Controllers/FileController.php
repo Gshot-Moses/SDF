@@ -110,8 +110,27 @@ class FileController extends Controller
         //return redirect()->route('resource.folder', FOLDER::MEDIA)->with('status', 'Ficher uploader avec succes');
     }
 
-    public function storeBrandbook(BrandbookRequest $request) {
-        $validated = $request->validated();
+    public function storeBrandbook(Request $request) {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|max:255|min:4',
+            'file' => 'required',
+        ]);
+        if ($validator->fails()) {
+            $errors = array();
+            if (array_key_exists('name', $validator->errors()->toArray())) {
+                $errors['nameError'] = $validator->errors()->toArray()['name'][0];
+            }
+            if (array_key_exists('file', $validator->errors()->toArray())) {
+                $errors['fileError'] = $validator->errors()->toArray()['file'][0];
+            }
+            return response()->json($errors);
+        }
+        $all = ['jpg', 'gif', 'png', 'mp3', 'm4a', 'wav', 'ogg', 'mp4', 'mkv',
+            'doc', 'docx', 'xlsx', 'ppt', 'pptx', 'pdf'];
+        $extension = strtolower($request->file->extension());
+        if (in_array($extension, $all)) {
+            return response()->json(['mime' => 'File type not taken into account']);
+        }
         $file = new File;
         $file->added_by = auth()->user()->id;
         $extension = $request->file->extension();
@@ -120,10 +139,11 @@ class FileController extends Controller
         $filename = $request->name.'.'.strtolower($extension);
         $file->filename = $filename;
         $file->extension = strtolower($extension);
-        $path = $request->safe()->file->storeAs('uploads', $filename, 'public');
+        $path = $request->file->storeAs('uploads', $filename, 'public');
         $file->path = $path;
         $file->save();
-        return redirect()->route('resource.folder', FOLDER::BRANDBOOK)->with('status', 'Ficher uploader avec succes');
+        return response()->json($file);
+        //return redirect()->route('resource.folder', FOLDER::BRANDBOOK)->with('status', 'Ficher uploader avec succes');
     }
 
     public function download($id) {
