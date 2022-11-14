@@ -41,15 +41,19 @@
         <div class="alert alert-success" style="display: none" id="success">
             <p>Upload effectif</p>
         </div>
+        @if(Auth::user()->role->id == 2)
         <a href="#" class="btn btn-success m-2" data-toggle="modal" data-target="#exampleModalCenter">
             Ajouter un ficher
         </a>
+        @endif
         <div class="card-body">
             <div class="row files" style="display: inline-flex">
                 @foreach($files as $file)
                     <div class="col">
-                        <img src="{{ asset('assets/images/pdf-96.png') }}" alt="" height="50" width="50">
-                        <p>{{ $file->filename }}</p>
+                        <a href="{{ route('resource.download', $file->id) }}">
+                            <img src="{{ asset('assets/images/file-100.png') }}" alt="" height="50" width="50">
+                            <p>{{ $file->filename }}</p>
+                        </a>
                     </div>    
                 @endforeach
             </div>
@@ -58,8 +62,6 @@
 @endsection
 
 @section('scripts')
-
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 
 <script>
 	
@@ -97,7 +99,7 @@
                 $("#exampleModalCenter").modal("hide");
 				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
 				
-                var img = "{{ asset('assets/images/ms-word-96.png') }}";
+                var img = "{{ asset('assets/images/file-100.png') }}";
 				var content = "<div class='col'><img src=" + img + " width=50 height=50 alt=''>" + "<p>" + data.filename + "</p>";
 				$(".files").append(content);
 			}

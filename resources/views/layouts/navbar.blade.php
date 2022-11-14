@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-light fixed-top" style="background-color: #efecec">
 	<a class="navbar-brand" href="#">
-		<img src="{{ asset('assets/images/logo1.jpg') }}" height="50" alt="">
+		<img src="{{ asset('assets/images/logo2.png') }}" height="50" alt="">
 	</a>
 	<div class="collapse navbar-collapse" id="navbar">
 		<ul class="nav navbar-nav ml-auto">

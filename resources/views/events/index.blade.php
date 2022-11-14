@@ -93,8 +93,6 @@
 
 @section('scripts')
 
-    <script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
     <script src="{{ asset('assets/js/evo-calendar.js') }}"></script>
     <script>
         $(document).ready(function() {

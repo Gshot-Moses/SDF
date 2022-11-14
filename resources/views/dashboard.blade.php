@@ -6,9 +6,8 @@
 
 @section('content')
 
-<h3 class="py-2 pl-3">Dashboard</h3>
 <div class="container-fluid">
-	<div class="card-body bg-light" style="{width: 80%;}">
+	<div class="card-body bg-light mt-3" style="{width: 80%;}">
 		<span class="text-success">Actualite</span>
 	</div>
 	<div class="row mt-5">
@@ -35,10 +34,4 @@
 		</div>
 	</div>
 </div>
-@endsection
-
-@section('scripts')
-
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
 @endsection

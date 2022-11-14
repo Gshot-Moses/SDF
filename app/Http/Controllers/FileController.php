@@ -67,18 +67,25 @@ class FileController extends Controller
             'file' => 'required|mimes:doc,docx,xlsx,pptx,ppt,pdf',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            $errors = array();
+            if (array_key_exists('name', $validator->errors()->toArray())) {
+                $errors['nameError'] = $validator->errors()->toArray()['name'][0];
+            }
+            if (array_key_exists('file', $validator->errors()->toArray())) {
+                $errors['fileError'] = $validator->errors()->toArray()['file'][0];
+            }
+            return response()->json($errors);
         }
         $validated = $validator->valid();
         $file = new File;
         $file->added_by = auth()->user()->id;
-        $extension = $validated['file']->extension();
+        $extension = $request->file->extension();
         //$extension = $request->file->getClientOriginalExtension();
         $file->folder_id = Folder::DOCUMENTS;
-        $filename = $validated['name'].'.'.strtolower($extension);
+        $filename = $request->name.'.'.strtolower($extension);
         $file->filename = $filename;
         $file->extension = strtolower($extension);
-        $path = $validated['file']->storeAs('uploads', $filename, 'public');
+        $path = $request->file->storeAs('uploads', $filename, 'public');
         $file->path = $path;
         $file->save();
         return response()->json($file);
@@ -92,18 +99,25 @@ class FileController extends Controller
             'file' => 'required|mimes:mp3,m4a,wav,mp4,mkv,jpg,png,gif',
         ]);
         if ($validator->fails()) {
-            return response()->json($validator->errors());
+            $errors = array();
+            if (array_key_exists('name', $validator->errors()->toArray())) {
+                $errors['nameError'] = $validator->errors()->toArray()['name'][0];
+            }
+            if (array_key_exists('file', $validator->errors()->toArray())) {
+                $errors['fileError'] = $validator->errors()->toArray()['file'][0];
+            }
+            return response()->json($errors);
         }
         $validated = $validator->valid();
         $file = new File;
         $file->added_by = auth()->user()->id;
-        $extension = $validated['file']->extension();
+        $extension = $request->file->extension();
         //$extension = $request->file->getClientOriginalExtension();
         $file->folder_id = Folder::MEDIA;
-        $filename = $validated['name'].'.'.strtolower($extension);
+        $filename = $request->name.'.'.strtolower($extension);
         $file->filename = $filename;
         $file->extension = strtolower($extension);
-        $path = $validated['file']->storeAs('uploads', $filename, 'public');
+        $path = $request->file->storeAs('uploads', $filename, 'public');
         $file->path = $path;
         $file->save();
         return response()->json($file);

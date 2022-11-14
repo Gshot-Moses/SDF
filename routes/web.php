@@ -52,7 +52,7 @@ Route::group(['middleware' => ['auth', 'role']], function() {
 
     //Route::get('resources/document/create', [FileController::class, 'createDocument'])->name('document.create');
     //Route::get('resources/media/create', [FileController::class, 'createMedia'])->name('media.create');
-    Route::get('resources/brandbook/create', [FileController::class, 'createBrandbook'])->name('brandbook.create');
+    //Route::get('resources/brandbook/create', [FileController::class, 'createBrandbook'])->name('brandbook.create');
     Route::post('resources/brandbook/store', [FileController::class, 'storeBrandbook'])->name('brandbook.store');
     Route::post('resources/document/store', [FileController::class, 'storeDocument'])->name('document.store');
     Route::post('resources/media/store', [FileController::class, 'storeMedia'])->name('media.store');

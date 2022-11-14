@@ -68,10 +68,12 @@
         <div class="alert alert-success" style="display: none" id="success">
             <p>Upload effectif</p>
         </div>
+        @if(Auth::user()->role->id == 2)
         <a href="#" class="btn btn-success m-2" data-toggle="modal" data-target="#exampleModalCenter"
         type="button">
             Ajouter un fichier media
         </a>
+        @endif
         <div class="card-body">
             <div class="row files" style="display: inline-flex">
                 @foreach($files as $file)
@@ -100,7 +102,6 @@
 
 @section('scripts')
 
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
 <!-- <script src="{{ asset('assets/js/tingle.min.js') }}"></script> -->
 
 <script>
@@ -164,7 +165,7 @@
 			dataType: "JSON",
 			success: function(data) {
                 console.log(data);
-                if (data.hasOwnProperty("name") || data.hasOwnProperty("file")) {
+                if (data.hasOwnProperty("nameError") || data.hasOwnProperty("fileError")) {
                     if (data.hasOwnProperty("name")) {
                         $("#nameError").append(data.name[0]);
                         $("#nameError").css("display", "block");

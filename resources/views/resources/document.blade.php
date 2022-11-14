@@ -40,15 +40,17 @@
         <div class="alert alert-success" style="display: none" id="success">
             <p>Upload effectif</p>
         </div>
+		@if(Auth::user()->role->id == 2)
         <a href="#" class="btn btn-success mt-2" data-toggle="modal" data-target="#exampleModalCenter"
         type="button">
             Ajouter un document
         </a>
+		@endif
         <div class="card-body">
             <div class="row files" style="display: inline-flex">
                 @foreach($files as $file)
                     <div class="col ml-2">
-						<a href="#">
+						<a href="{{ route('resource.download', $file->id) }}">
 							@if($file->extension == 'doc' || $file->extension == 'docx')
 								<img src="{{ asset('assets/images/ms-word-96.png') }}" alt="" height="50" width="50">
 							@endif
@@ -66,8 +68,6 @@
 
 @section('scripts')
 
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
 <script>
 	
 	$("#create").on("submit", function(e){
@@ -83,12 +83,12 @@
     		contentType: false,
 			dataType: "JSON",
 			success: function(data) {
-				if (data.hasOwnProperty("name") || data.hasOwnProperty("file")) {
-                    if (data.hasOwnProperty("name")) {
+				if (data.hasOwnProperty("nameError") || data.hasOwnProperty("fileError")) {
+                    if (data.hasOwnProperty("nameError")) {
                         $("#nameError").append(data.name[0]);
                         $("#nameError").css("display", "block");
                     }
-                    if (data.hasOwnProperty("file")) {
+                    if (data.hasOwnProperty("fileError")) {
                         $("#fileError").append(data.file[0]);
                         $("#fileError").css("display", "block");
                     }

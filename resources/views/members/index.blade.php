@@ -128,8 +128,6 @@
 
 @section('scripts')
 
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-
 <script>
 	// Delete case
 	$("#modalDelete").on("show.bs.modal", function(event){
