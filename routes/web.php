@@ -27,11 +27,11 @@ Route::middleware(['auth'])->group(function() {
     Route::get('dashboard', [HomeController::class, 'index'])->name('member.dashboard');
 
     Route::get('events', [EventsController::class, 'index'])->name('event.index');
-    
+
     Route::get('resources', [FileController::class, 'index'])->name('resource.index');
     Route::get('resources/{id}', [FileController::class, 'folderContent'])->name('resource.folder');
     Route::get('resources/download/{id}', [FileController::class, 'download'])->name('resource.download');
-    //Route::get('resources/view/{id}', [FileController::class, 'show'])->name('resource.show');
+    Route::get('resources/view/{id}', [FileController::class, 'show'])->name('resource.show');
 
     Route::get('members', [MemberController::class, 'index'])->name('member.index');
 
@@ -68,7 +68,7 @@ Route::group(['middleware' => ['auth', 'role']], function() {
 Route::get('/auth/redirect', function () {
     return Socialite::driver('google')->redirect();
 })->name('google.auth');
- 
+
 Route::get('/auth/callback', function () {
     $user = Socialite::driver('google')->user();
     $get_user = User::updateOrCreate([
@@ -80,9 +80,9 @@ Route::get('/auth/callback', function () {
         'google_refresh_token' => $user->refreshToken,
         'password'=> Hash::make(12345678),
     ]);
- 
+
     Auth::login($get_user);
- 
+
     return redirect()->route('member.dashboard');
 });
 

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <meta http-equiv="Content-Security-Policy" content="media-src 'self' font-src fonts.googleapis.com fonts.gstatic.com script-src 'self' 'unsafe-inline' img-src 'self' data: connect-src 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'none' media-src 'self' font-src fonts.googleapis.com fonts.gstatic.com script-src 'self' 'unsafe-inline' img-src 'self' data: connect-src 'self'">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">

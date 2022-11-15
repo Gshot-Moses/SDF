@@ -50,7 +50,7 @@
             <div class="row files" style="display: inline-flex">
                 @foreach($files as $file)
                     <div class="col ml-2">
-						<a href="{{ route('resource.download', $file->id) }}">
+						<a href="{{ route('resource.show', $file->id) }}">
 							@if($file->extension == 'doc' || $file->extension == 'docx')
 								<img src="{{ asset('assets/images/ms-word-96.png') }}" alt="" height="50" width="50">
 							@endif
@@ -59,7 +59,7 @@
 							@endif
 							<p>{{ $file->filename }}</p>
 						</a>
-                    </div>    
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -69,7 +69,7 @@
 @section('scripts')
 
 <script>
-	
+
 	$("#create").on("submit", function(e){
 		e.preventDefault();
 		var form = $(this);
@@ -93,7 +93,7 @@
                         $("#fileError").css("display", "block");
                     }
                     return;
-                }	
+                }
 				$("#success").css("display", "block");
 				$("#create")[0].reset();
                 $("#exampleModalCenter").modal("hide");

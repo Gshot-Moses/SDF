@@ -120,7 +120,12 @@ class FileController extends Controller
         $path = $request->file->storeAs('uploads', $filename, 'public');
         $file->path = $path;
         $file->save();
-        return response()->json($file);
+        return response()->json([
+            'id' => $file->id,
+            'filename' => $file->filename,
+            'extension' => $file->extension,
+            'download' => route('resource.download', $file->id),
+        ]);
         //return redirect()->route('resource.folder', FOLDER::MEDIA)->with('status', 'Ficher uploader avec succes');
     }
 
@@ -206,12 +211,6 @@ class FileController extends Controller
         $file = File::where('id', '=', $id)->first();
         if ($file->extension == 'pdf') {
             return view('resources.show_doc', ['filename' => $file->filename]);
-        }
-        else if ($file->extension == 'png' || $file->extension == 'jpg' || $file->extension == 'gif') {
-            return view('resources.show_media', ['filename' => $file->filename]);
-        }
-        else {
-            return view('resources.show_audio', ['filename' => $file->filename]);
         }
         //return Storage::url('public/uploads/'.$file->filename);
     }

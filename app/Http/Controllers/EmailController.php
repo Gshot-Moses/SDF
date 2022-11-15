@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 //use PhpImap\MailBox;
 //use Google\Client;
-use Webklex\PHPIMAP\ClientManager;
-use Webklex\PHPIMAP\Client;
+//use Webklex\PHPIMAP\ClientManager;
+//use Webklex\PHPIMAP\Client;
 //use Webklex\IMAP\Facades\Client;
 
 class EmailController extends Controller
@@ -31,9 +31,9 @@ class EmailController extends Controller
         //    $token = $client->fetchAccessTokenWithAuthCode($_GET['code']);
         //}
 
-        
+
         //$this->client->addScope(\Google\Service\Drive::DRIVE_METADATA_READONLY);
-        
+
         // offline access will give you both an access and refresh token so that
         // your app can refresh the access token without user interaction.
         $this->client->setAccessType('offline');

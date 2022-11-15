@@ -71,7 +71,7 @@
     	</div>
   </div>
 </div>
-		
+
 	<div class="bg-light text-dark py-3 pl-2">
 		<h3>Membres</h3>
 	</div>
@@ -85,7 +85,7 @@
 	</div>
 	@if(Auth::user()->role->id == 2)
 		<a href="#" class="btn btn-success" data-toggle="modal" data-target="#exampleModalCenter"
-		type="button">
+		data-title="Creer un membre" type="button">
 			Creer un membre
 		</a>
 	@endif
@@ -109,7 +109,8 @@
 					<button class="btn btn-info"
 					data-toggle="modal" data-target="#exampleModalCenter" data-name="{{ $member->name }}"
 					data-email="{{ $member->email }}" data-role="{{ $member->role->id }}"
-					data-url="{{ route('member.update', $member->id) }}" type="button">
+					data-url="{{ route('member.update', $member->id) }}"
+                    data-title="Editer un membre" type="button">
 						Modifier
 					</button>
 					<a href="#" class="btn btn-danger" data-toggle="modal" data-target="#modalDelete"
@@ -123,7 +124,7 @@
 		</tbody>
 	</table>
 
-	
+
 @endsection
 
 @section('scripts')
@@ -136,6 +137,7 @@
 
 		var modal = $(this);
 		modal.find(".modal-footer button[id=delete]").on("click", function(){
+            modal.modal("hide");
 			$.get(url, function(data) {
 				$("#row" + data.id).remove();
 
@@ -143,7 +145,6 @@
 				$("#success").css("display", "block");
 
 				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
-				modal.hide();
 			});
 		});
 	});
@@ -155,13 +156,14 @@
 		var email = button.data("email");
 		var role = button.data("role");
 		var url = button.data("url");
+        var title = button.data("title");
 		//console.log(url);
 
 		$("#nameError").text("");
 		$("#emailError").text("");
 
 		var modal = $(this);
-		modal.find(".modal-title").text("Editer member");
+		modal.find(".modal-title").text(title);
 		modal.find(".modal-body form").attr("action", url);
 		modal.find(".modal-body input[name=name]").attr("value", name);
 		modal.find(".modal-body input[name=email]").attr("value", email);
@@ -193,7 +195,7 @@
 					}
 					if (data.hasOwnProperty("emailError")) {
 						$("#emailError").text(data.emailError);
-                        $("#emailError").css("display", "block");	
+                        $("#emailError").css("display", "block");
 					}
 					return;
 				}
@@ -216,7 +218,7 @@
 
 					// Timeout success feedback
 					window.setTimeout(() => ($("#success").css("display", "none")), 3000);
-				
+
 					// Update concerned table row
 					$("#name" + data.id).text(data.name);
 					return;
@@ -231,26 +233,49 @@
 
                 $("#exampleModalCenter").modal("hide");
 				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
-				
+
 				var append = "";
-				var editR = "http://localhost:8000/members/update/"  + data.id;
-				
-			
-				var deleteR = "http://localhost:8000/members/delete/" + data.id;
-				var btn1 = "<a href='" + editR + "' class='btn btn-info'>Modifier</a>";
-				var btn2 = "<a href='" + deleteR + "' class='btn btn-danger'>Supprimer</a>";
+                var btn1 = makeEditButton(data);
+
+				var btn2 = makeDeleteButton(data.delete);
 				var isAdmin = "{{ Auth::user()->role->id == 2 ? true : false }}"
 				if (isAdmin != true) {
-					append = "<tr><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td></tr>";
+					append = "<tr id='row" + data.id + "'><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td></tr>";
 				}
 				else {
-					append = "<tr><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td><td>" + btn1 + " " + btn2 + "</td></tr>";
+					append = "<tr id='row" + data.id + "'><td>" + data.id + "</td><td id='name" + data.id + "'>" + data.name + "</td><td>" + btn1 + " " + btn2 + "</td></tr>";
 				}
 
 				$("#drawer tr:last").after(append);
 			}
 		});
 	});
+
+    function makeEditButton(userData) {
+        var btnClass = "btn btn-info";
+        var dataToggle = "modal";
+        var dataTarget = "#exampleModalCenter";
+        var dataName = userData.name;
+        var dataEmail = userData.email;
+        var dataRole = userData.role_id;
+        var dataUrl = userData.edit;
+
+        return "<a href='#' class='" + btnClass + "' data-toggle='" + dataToggle +
+            "' data-target='" + dataTarget + "' data-name='" + dataName +
+            "' data-email='" + dataEmail + "' data-role='" + dataRole + "' data-url='" +
+            dataUrl + "'>Modifier</a>"
+    }
+
+    function makeDeleteButton(deleteUrl) {
+        var btnClass = "btn btn-danger";
+        var dataToggle = "modal";
+        var dataTarget = "#modalDelete";
+        var dataUrl = deleteUrl;
+
+        return "<a href='#' class='" + btnClass + "' data-toggle='" + dataToggle +
+            "' data-target='" + dataTarget + "' data-url='" + dataUrl +
+            "'>Supprimer</a>";
+    }
 </script>
 
 @endsection

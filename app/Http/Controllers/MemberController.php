@@ -72,7 +72,16 @@ class MemberController extends Controller
         $member->role_id = $request->role;
         $member->password = Hash::make('12345678');
         $member->save();
-        return response()->json($member);
+        $edit = route('member.update', $member->id);
+        $delete = route('member.delete', $member->id);
+        return response()->json([
+            'id' => $member->id,
+            'name' => $member->name,
+            'email' => $member->email,
+            'role_id' => $member->role->id,
+            'edit' => $edit,
+            'delete' => $delete
+        ]);
         //return redirect()->route('member.index')->with('status', 'Membre cree');
     }
 

@@ -93,7 +93,7 @@
                             @endif
                             <p>{{ $file->filename }}</p>
                         </a>
-                    </div>    
+                    </div>
                 @endforeach
             </div>
         </div>
@@ -124,32 +124,8 @@
             var content = "<video height='320' width='200' controls><source src='" + url + "' type='video/mp4'>Browser not supported</video>";
             modal.find(".modal-body div[id=content]").html(content);
         }
-		
-	});
 
-    function showImg(id, filename, extension) {
-        var modalTinyBtn = new tingle.modal({
-            footer: false
-        });
-        //var id = 
-        // $(".obj" + id).on("click", function () {
-        //     modalTinyBtn.open();
-        // });
-        var content = '';
-        var asset = "{{ asset('storage/uploads') }}" + "/" + filename;
-        if (extension == "png" || extension == "jpg" || extension == "gif") {
-            content = "<img src='" + asset + "' alt='' width='200' height='200' class='text-center'>";
-        }
-        else if (extension == "mp3") {
-            content = "<audio controls><source src='" + asset + "' type='audio/mpeg'>Browser not supported</audio>";
-        }
-        else if (extension == "mp4" || extension == "mkv") {
-            content = "<video height='320' width='200' controls><source src='" + asset + "' type='video/mp4'>Browser not supported</video>";
-        }
-        console.log(content);
-        modalTinyBtn.setContent(content);
-        modalTinyBtn.open();
-    }
+	});
 
 	$("#create").on("submit", function(e){
 		e.preventDefault();
@@ -175,12 +151,12 @@
                         $("#fileError").css("display", "block");
                     }
                     return;
-                }	
+                }
 				$("#success").css("display", "block");
 				$("#create")[0].reset();
                 $("#exampleModalCenter").modal("hide");
 				window.setTimeout(() => ($("#success").css("display", "none")), 3000);
-				
+
                 var img = '';
 				if (data.extension == 'jpg' || data.extension == 'png' || data.extension == 'gif') {
 					img = "{{ asset('assets/images/picture.png') }}";
@@ -191,13 +167,27 @@
                 else {
                     img = "{{ asset('assets/images/video-100.png') }}";
                 }
-                var viewRoute = "/resources/view/" + data.id;
-				var content = "<div class='col'><a href='" + viewRoute + "'><img src=" + img + " width=50 height=50 alt=''>" + "<p>" + data.filename + "</p></a></div>";
+                var anchorContent = "<img src='" + img + "' width='50' height='50' alt=''>" + "<p>" + data.filename + "</p>";
+                var assetUrl = "{{ asset('storage/uploads') }}" + "/" + data.filename;
+                var anchor = makeViewAnchor(data, assetUrl, anchorContent);
+				var content = "<div class='col'>" + anchor + "</div>";
 
 				$(".files").append(content);
 			}
 		});
 	});
+
+    function makeViewAnchor(data, dataUrl, content) {
+        var dataToggle = "modal";
+        var dataTarget = "#showModal";
+        var dataUrl = dataUrl;
+        var dataDownload = data.download;
+        var dataExtension = data.extension;
+        return "<a href='#' data-toggle='" + dataToggle + "' data-target='" +
+            dataTarget + "' data-url='" + dataUrl + "' data-download='" +
+            dataDownload + "' data-extension='" + dataExtension +
+            "'>" + content + "</a>"
+    }
 </script>
 
 @endsection
